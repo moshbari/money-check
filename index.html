@@ -1,0 +1,421 @@
+<title>Will It Make Money? — a simple business check</title>
+<style>
+  /* ============ TOKENS ============ */
+  :root{
+    --bg:#EEE8DA; --panel:#FBF8F1; --panel-2:#F2ECDD; --inset:#E7E0CE;
+    --ink:#1A1C15; --ink-soft:#54574A; --ink-faint:#8B8C7C;
+    --line:#DAD2BE; --line-soft:#E5DECC;
+    --accent:#C96A16; --accent-2:#9C4E0C; --accent-ink:#FFFFFF;
+    --good:#2E9E5B; --good-bg:#E4F1E5;
+    --warn:#B5851A; --warn-bg:#F4ECD4;
+    --bad:#CB4127; --bad-bg:#F6E2DB;
+    --shadow:0 1px 0 rgba(0,0,0,.03), 0 8px 24px -14px rgba(40,30,10,.28);
+    --mono:ui-monospace,"SF Mono","Cascadia Code","JetBrains Mono",Menlo,Consolas,monospace;
+    --sans:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --bg:#111309; --panel:#191B12; --panel-2:#20231A; --inset:#0C0E07;
+      --ink:#ECE7D6; --ink-soft:#A6A791; --ink-faint:#6D6F5D;
+      --line:#2C2F22; --line-soft:#23261B;
+      --accent:#F5A524; --accent-2:#E68A12; --accent-ink:#161200;
+      --good:#4FCB82; --good-bg:#16241A; --warn:#E3B84A; --warn-bg:#241F0F;
+      --bad:#F26A50; --bad-bg:#2A150F;
+      --shadow:0 1px 0 rgba(0,0,0,.3), 0 14px 34px -18px rgba(0,0,0,.7);
+    }
+  }
+  :root[data-theme="light"]{
+    --bg:#EEE8DA; --panel:#FBF8F1; --panel-2:#F2ECDD; --inset:#E7E0CE;
+    --ink:#1A1C15; --ink-soft:#54574A; --ink-faint:#8B8C7C;
+    --line:#DAD2BE; --line-soft:#E5DECC;
+    --accent:#C96A16; --accent-2:#9C4E0C; --accent-ink:#FFFFFF;
+    --good:#2E9E5B; --good-bg:#E4F1E5; --warn:#B5851A; --warn-bg:#F4ECD4;
+    --bad:#CB4127; --bad-bg:#F6E2DB;
+    --shadow:0 1px 0 rgba(0,0,0,.03), 0 8px 24px -14px rgba(40,30,10,.28);
+  }
+  :root[data-theme="dark"]{
+    --bg:#111309; --panel:#191B12; --panel-2:#20231A; --inset:#0C0E07;
+    --ink:#ECE7D6; --ink-soft:#A6A791; --ink-faint:#6D6F5D;
+    --line:#2C2F22; --line-soft:#23261B;
+    --accent:#F5A524; --accent-2:#E68A12; --accent-ink:#161200;
+    --good:#4FCB82; --good-bg:#16241A; --warn:#E3B84A; --warn-bg:#241F0F;
+    --bad:#F26A50; --bad-bg:#2A150F;
+    --shadow:0 1px 0 rgba(0,0,0,.3), 0 14px 34px -18px rgba(0,0,0,.7);
+  }
+
+  /* ============ BASE ============ */
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:var(--sans); line-height:1.6;
+    font-size:clamp(16px,1vw + 14px,18px);
+    -webkit-font-smoothing:antialiased; overflow-x:hidden;
+  }
+  .wrap{max-width:820px; margin:0 auto; padding:0 clamp(18px,5vw,32px)}
+  section{padding:clamp(44px,7vw,80px) 0; border-top:1px solid var(--line-soft)}
+  h1,h2,h3{margin:0; text-wrap:balance; letter-spacing:-.015em; font-weight:800}
+  a{color:inherit}
+  .mono{font-family:var(--mono); font-variant-numeric:tabular-nums}
+
+  .eyebrow{
+    font-family:var(--mono); font-size:.72rem; letter-spacing:.18em;
+    text-transform:uppercase; color:var(--accent); font-weight:600;
+    display:flex; align-items:center; gap:.7em;
+  }
+  .eyebrow::before{content:""; width:24px; height:2px; background:var(--accent); display:inline-block}
+
+  .sec-head{margin-bottom:clamp(24px,4vw,38px)}
+  .sec-head h2{font-size:clamp(1.55rem,4vw,2.15rem); line-height:1.1; margin:.5rem 0 .6rem}
+  .sec-head p{color:var(--ink-soft); font-size:1.02rem; margin:0; max-width:56ch}
+
+  /* ============ HERO ============ */
+  .hero{padding-top:clamp(30px,5vw,52px); padding-bottom:clamp(30px,5vw,44px); border-top:none}
+  .topbar{display:flex; justify-content:space-between; align-items:center; padding-top:20px; gap:12px}
+  .brand{font-family:var(--mono); font-size:.76rem; letter-spacing:.1em; text-transform:uppercase; font-weight:600; color:var(--ink-soft)}
+  .brand b{color:var(--accent)}
+  .src{font-family:var(--mono); font-size:.72rem; color:var(--ink-faint); text-decoration:none; border-bottom:1px solid var(--line); white-space:nowrap}
+  .src:hover{color:var(--accent); border-color:var(--accent)}
+
+  .hero h1{
+    font-size:clamp(2.2rem,7vw,3.6rem); line-height:1.02;
+    letter-spacing:-.03em; margin:clamp(26px,5vw,40px) 0 0; font-weight:800;
+  }
+  .hero h1 .hit{color:var(--accent)}
+  .hero-sub{max-width:48ch; color:var(--ink-soft); font-size:clamp(1.05rem,1.8vw,1.25rem); margin:20px 0 0}
+  .hero-sub b{color:var(--ink); font-weight:650}
+  .arrow{margin-top:30px; font-family:var(--mono); font-size:.8rem; letter-spacing:.05em; color:var(--ink-faint); display:flex; align-items:center; gap:8px}
+
+  /* ============ THE CHECK ============ */
+  .panel{background:var(--panel); border:1px solid var(--line); border-radius:18px; box-shadow:var(--shadow); overflow:hidden}
+  .q{padding:22px clamp(18px,4vw,28px); border-bottom:1px solid var(--line-soft)}
+  .q .step{font-family:var(--mono); font-size:.72rem; letter-spacing:.1em; color:var(--accent); font-weight:700}
+  .q label{display:block; font-weight:700; font-size:1.08rem; margin:6px 0 3px; letter-spacing:-.01em}
+  .q .hint{font-size:.88rem; color:var(--ink-faint); margin-bottom:14px}
+  .money{position:relative; display:inline-block}
+  .money .pfx{position:absolute; left:14px; top:50%; transform:translateY(-50%); color:var(--ink-faint); font-family:var(--mono); font-size:1.05rem; font-weight:600}
+  input[type=number]{
+    width:150px; padding:12px 14px 12px 30px; background:var(--inset); border:1px solid var(--line);
+    border-radius:11px; color:var(--ink); font-family:var(--mono); font-size:1.15rem; font-weight:700;
+    font-variant-numeric:tabular-nums; -moz-appearance:textfield;
+  }
+  .q.plain input[type=number]{padding-left:14px}
+  input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+  .sliderrow{display:flex; align-items:center; gap:16px}
+  input[type=range]{flex:1; accent-color:var(--accent); height:5px}
+  .rngval{font-family:var(--mono); font-size:1.05rem; font-weight:700; color:var(--accent); min-width:88px; text-align:right}
+  input:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+
+  .presets{padding:18px clamp(18px,4vw,28px); background:var(--panel-2)}
+  .presets .lbl{font-size:.82rem; color:var(--ink-faint); margin-bottom:10px}
+  .chips{display:flex; flex-wrap:wrap; gap:8px}
+  .chip{
+    font-size:.82rem; padding:8px 14px; border-radius:99px;
+    border:1px solid var(--line); background:var(--panel); color:var(--ink-soft); cursor:pointer; transition:.15s; font-weight:500;
+  }
+  .chip:hover{border-color:var(--accent); color:var(--accent)}
+
+  /* ============ RESULT ============ */
+  .result{margin-top:22px; border:1px solid var(--line); border-radius:18px; overflow:hidden; background:var(--panel); box-shadow:var(--shadow)}
+  .verdict-top{padding:26px clamp(18px,4vw,30px); text-align:center; transition:background .3s}
+  .verdict-emoji{font-size:2.4rem; line-height:1}
+  .verdict-title{font-size:clamp(1.4rem,4vw,1.9rem); font-weight:800; margin:10px 0 4px; letter-spacing:-.02em}
+  .verdict-sub{font-size:1rem; color:var(--ink-soft); max-width:44ch; margin:0 auto}
+
+  .bignum{padding:8px clamp(18px,4vw,30px) 4px; text-align:center}
+  .bignum .big{font-family:var(--mono); font-size:clamp(2.6rem,10vw,4rem); font-weight:800; letter-spacing:-.03em; line-height:1; transition:color .3s}
+  .bignum .cap{font-size:.95rem; color:var(--ink-soft); margin-top:8px}
+
+  /* meter */
+  .meter{padding:22px clamp(18px,4vw,30px) 8px}
+  .mtrack{position:relative; height:16px; border-radius:9px; overflow:hidden; display:flex}
+  .mzone{height:100%}
+  .mzone.z1{background:var(--bad)} .mzone.z2{background:var(--warn)} .mzone.z3{background:#7CA83A} .mzone.z4{background:var(--good)}
+  .mpin{position:absolute; top:-6px; width:4px; height:28px; background:var(--ink); border-radius:3px; transform:translateX(-50%); transition:left .4s cubic-bezier(.2,.7,.2,1); box-shadow:0 0 0 3px var(--panel)}
+  .mlabels{position:relative; height:34px; margin-top:8px; font-size:.72rem; color:var(--ink-faint); font-family:var(--mono)}
+  .mlabels span{position:absolute; text-align:center; transform:translateX(-50%); line-height:1.25}
+  .mlabels b{display:block; color:var(--ink-soft); font-weight:700}
+
+  .plainline{padding:18px clamp(18px,4vw,30px); border-top:1px solid var(--line-soft); display:flex; gap:14px; align-items:flex-start; font-size:.98rem}
+  .plainline .ic{flex:0 0 auto; font-size:1.2rem; margin-top:1px}
+  .plainline b{color:var(--ink)}
+  .plainline .sub{color:var(--ink-soft)}
+
+  /* ============ LESSON ============ */
+  .lesson{background:var(--panel); border:1px solid var(--line); border-radius:18px; padding:clamp(22px,4vw,32px); box-shadow:var(--shadow)}
+  .lesson .big{font-size:clamp(1.3rem,3.5vw,1.75rem); font-weight:800; line-height:1.2; letter-spacing:-.02em}
+  .lesson .big .hit{color:var(--accent)}
+  .lesson p{color:var(--ink-soft); margin:16px 0 0}
+  .lesson p b{color:var(--ink)}
+
+  /* ============ WAYS (levers) ============ */
+  .ways{display:grid; grid-template-columns:1fr 1fr; gap:12px}
+  @media (max-width:560px){.ways{grid-template-columns:1fr}}
+  .way{display:flex; gap:14px; padding:18px 18px; border:1px solid var(--line); border-radius:14px; background:var(--panel); align-items:flex-start}
+  .way .em{font-size:1.5rem; line-height:1; flex:0 0 auto}
+  .way h3{font-size:1.05rem; margin:0 0 3px}
+  .way p{margin:0; font-size:.9rem; color:var(--ink-soft)}
+
+  /* ============ LANES ============ */
+  .lanes{display:grid; grid-template-columns:1fr 1fr; gap:14px}
+  @media (max-width:560px){.lanes{grid-template-columns:1fr}}
+  .lane{padding:22px 20px; border:1px solid var(--line); border-radius:16px; background:var(--panel)}
+  .lane .em{font-size:1.7rem}
+  .lane h3{font-size:1.12rem; margin:12px 0 6px}
+  .lane p{margin:0; font-size:.92rem; color:var(--ink-soft)}
+  .lane.mid{grid-column:1 / -1; background:var(--bad-bg); border-color:transparent; text-align:center}
+  .lane.mid h3{color:var(--bad)} .lane.mid p{color:var(--ink-soft)}
+
+  /* ============ FOOTER ============ */
+  footer{border-top:1px solid var(--line); padding:32px 0 56px; color:var(--ink-faint); font-size:.86rem}
+  footer .row{display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px; align-items:baseline}
+  footer a{color:var(--accent); text-decoration:none; font-family:var(--mono); font-size:.82rem}
+  footer .disc{max-width:56ch; margin-top:14px; font-size:.78rem; line-height:1.55}
+
+  @media (prefers-reduced-motion:reduce){*{transition:none!important; animation:none!important}}
+</style>
+
+<div class="wrap">
+
+  <!-- ===== HERO ===== -->
+  <header class="hero">
+    <div class="topbar">
+      <span class="brand">💰 THE&nbsp;<b>MONEY CHECK</b></span>
+      <a class="src" href="https://youtu.be/i7bLRKwKSms" target="_blank" rel="noopener">▶ inspired by Hormozi</a>
+    </div>
+
+    <p class="eyebrow" style="margin-top:clamp(30px,6vw,48px)">Before you spend a dollar</p>
+    <h1>Will your business idea <span class="hit">actually make money?</span></h1>
+    <p class="hero-sub">Most people find out the hard way — after they've spent the time and cash. Answer <b>3 quick questions</b> and know in 30 seconds. No jargon, no spreadsheet.</p>
+    <div class="arrow">↓ &nbsp;Try it — the numbers below are just an example</div>
+  </header>
+
+  <!-- ===== THE CHECK ===== -->
+  <section id="check">
+    <div class="panel">
+      <div class="q">
+        <div class="step">QUESTION 1</div>
+        <label for="pay">How much does one customer pay you?</label>
+        <div class="hint">Each time they buy from you.</div>
+        <div class="money"><span class="pfx">$</span><input id="pay" type="number" min="0" step="5" value="50"></div>
+      </div>
+
+      <div class="q plain">
+        <div class="step">QUESTION 2</div>
+        <label for="times">How many times will they buy — in total?</label>
+        <div class="hint">Over the whole time they stay a customer. One-time sale? Put 1.</div>
+        <input id="times" type="number" min="0" step="1" value="10">
+      </div>
+
+      <div class="q">
+        <div class="step">QUESTION 3</div>
+        <label for="cost">What does it cost to get one new customer?</label>
+        <div class="hint">Ads, marketing, discounts — whatever you spend to win one buyer.</div>
+        <div class="money"><span class="pfx">$</span><input id="cost" type="number" min="0" step="5" value="100"></div>
+      </div>
+
+      <div class="q">
+        <div class="step">ONE LAST THING</div>
+        <label for="profit">Out of every $10 they pay, how much is profit?</label>
+        <div class="hint">After what it costs YOU to make or deliver the thing. Not sure? Leave it.</div>
+        <div class="sliderrow">
+          <input id="profit" type="range" min="1" max="10" step="1" value="8">
+          <span class="rngval" id="profitOut">$8 of $10</span>
+        </div>
+      </div>
+
+      <div class="presets">
+        <div class="lbl">Or start from an example:</div>
+        <div class="chips">
+          <button class="chip" data-p="coach">Coaching</button>
+          <button class="chip" data-p="gym">Local gym</button>
+          <button class="chip" data-p="shop">Online shop</button>
+          <button class="chip" data-p="app">Subscription app</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULT -->
+    <div class="result">
+      <div class="verdict-top" id="vtop">
+        <div class="verdict-emoji" id="vEmoji">🟡</div>
+        <div class="verdict-title" id="vTitle">Healthy business</div>
+        <div class="verdict-sub" id="vSub">This can survive and grow steadily.</div>
+      </div>
+
+      <div class="bignum">
+        <div class="big" id="backNum">$5.00</div>
+        <div class="cap">comes back for every <b>$1</b> you spend to get a customer</div>
+      </div>
+
+      <div class="meter">
+        <div class="mtrack" aria-hidden="true">
+          <div class="mzone z1" style="width:12%"></div>
+          <div class="mzone z2" style="width:13%"></div>
+          <div class="mzone z3" style="width:60%"></div>
+          <div class="mzone z4" style="width:15%"></div>
+          <div class="mpin" id="pin" style="left:33%"></div>
+        </div>
+        <div class="mlabels">
+          <span style="left:6%"><b>Losing</b>under $1</span>
+          <span style="left:19%"><b>Risky</b>$1–$3</span>
+          <span style="left:55%"><b>Healthy</b>$3–$12</span>
+          <span style="left:92%"><b>Scaling</b>$12+</span>
+        </div>
+      </div>
+
+      <div class="plainline">
+        <span class="ic">🧍</span>
+        <span><b id="worthOut">$400</b> <span class="sub">— that's what one customer is really worth to you (in profit) over their whole time with you.</span></span>
+      </div>
+      <div class="plainline">
+        <span class="ic" id="recIcon">⏱️</span>
+        <span id="recLine"><span class="sub">You earn back the cost of getting a customer after about</span> <b>3 sales</b><span class="sub">, and the rest is profit. Faster is better.</span></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== THE ONE LESSON ===== -->
+  <section id="lesson">
+    <div class="sec-head">
+      <p class="eyebrow">The one big idea from the video</p>
+      <h2>Get the money math right first</h2>
+    </div>
+    <div class="lesson">
+      <p class="big">Most people obsess over <span class="hit">how</span> to get customers — the ads, the posts, the DMs. Hormozi says do the opposite: first make sure that <span class="hit">when</span> a customer shows up, you make good money.</p>
+      <p>Get a customer worth <b>far more</b> than it costs to get them, and earn that money back <b>fast</b>. Do that, and almost any way of finding customers works. Skip it, and no clever marketing can save you — you just lose money quicker.</p>
+    </div>
+  </section>
+
+  <!-- ===== 6 WAYS ===== -->
+  <section id="ways">
+    <div class="sec-head">
+      <p class="eyebrow">6 easy ways to make more</p>
+      <h2>Already running? Pull one of these</h2>
+      <p>You don't need a new business. More profit almost always comes from one of these six simple moves.</p>
+    </div>
+    <div class="ways" id="wayGrid"></div>
+  </section>
+
+  <!-- ===== LANES ===== -->
+  <section id="lanes">
+    <div class="sec-head">
+      <p class="eyebrow">Pick a lane</p>
+      <h2>Cheap for everyone, or pricey for a few</h2>
+      <p>Hormozi's rule: pick one end and commit. The stuck-in-the-middle businesses are the ones that die.</p>
+    </div>
+    <div class="lanes">
+      <div class="lane"><div class="em">💎</div><h3>Pricey, for a few</h3><p>Sell something premium to a small group who really want it. Big profit per sale funds everything — and you learn faster from serious buyers.</p></div>
+      <div class="lane"><div class="em">🛒</div><h3>Cheap, for everyone</h3><p>Sell something inexpensive to lots of people and win on volume. Great — once you know the money math already works.</p></div>
+      <div class="lane mid"><div class="em">⚠️</div><h3>Avoid the messy middle</h3><p>Too expensive to be a bargain, too cheap to be premium. No standout price, no room to grow — this is where businesses quietly bleed out.</p></div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="row">
+      <span>The Money Check · a simple gut-check for your business idea</span>
+      <a href="https://youtu.be/i7bLRKwKSms" target="_blank" rel="noopener">Watch the video ↗</a>
+    </div>
+    <p class="disc">Inspired by Alex Hormozi's video <i>"How I Would Build a Business in 2026 (If I Had to Start Over)."</i> An unofficial learning tool — not affiliated with or endorsed by Alex Hormozi. The results are simple estimates to help you think, not financial advice.</p>
+  </footer>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var $=function(id){return document.getElementById(id);};
+  function money(n){
+    if(!isFinite(n)||n<0)n=0;
+    if(n>=1000) return "$"+Math.round(n).toLocaleString();
+    if(n>=100)  return "$"+Math.round(n).toLocaleString();
+    return "$"+(Math.round(n*100)/100).toLocaleString();
+  }
+
+  var presets={
+    coach:{pay:1000,times:6,cost:400,profit:9},
+    gym:{pay:120,times:18,cost:200,profit:8},
+    shop:{pay:45,times:3,cost:30,profit:4},
+    app:{pay:15,times:24,cost:120,profit:9}
+  };
+
+  // meter: value 0..15 -> percent, matching zone widths (12/13/60/15)
+  // zone edges at value 1, 3, 12, 15. positions: 0%..12% =0..1, 12..25=1..3, 25..85=3..12, 85..100=12..15
+  function pctFor(back){
+    var v=Math.max(0,Math.min(back,15));
+    if(v<=1)  return (v/1)*12;
+    if(v<=3)  return 12 + ((v-1)/2)*13;
+    if(v<=12) return 25 + ((v-3)/9)*60;
+    return 85 + ((v-12)/3)*15;
+  }
+
+  function compute(){
+    var pay=+$("pay").value||0, times=+$("times").value||0,
+        cost=+$("cost").value||0, profitCents=+$("profit").value||0;
+    var margin=profitCents/10;
+
+    $("profitOut").textContent="$"+profitCents+" of $10";
+
+    var profitPerSale=pay*margin;
+    var worth=profitPerSale*times;                 // lifetime profit per customer
+    var back=cost>0 ? worth/cost : (worth>0?15:0); // $ back per $1 spent
+    var recover=profitPerSale>0 ? Math.ceil(cost/profitPerSale) : 0;
+
+    // big number
+    var bn=$("backNum");
+    bn.textContent="$"+(Math.round(back*100)/100).toFixed(2);
+
+    // colour + verdict
+    var col,emoji,title,sub;
+    if(back<1){col="var(--bad)";emoji="🔴";title="Losing money";sub="Right now each customer costs more than they bring in. Charge more, get them to buy again, or spend less to find them.";}
+    else if(back<3){col="var(--warn)";emoji="🟠";title="Risky — too thin";sub="You make a little, but not enough cushion to grow safely. Aim to get at least $3 back for every $1.";}
+    else if(back<12){col="#7CA83A";emoji="🟡";title="Healthy business";sub="Solid. This can survive and grow steadily. Push toward $12 back to really scale.";}
+    else {col="var(--good)";emoji="🟢";title="Strong — built to scale";sub="Excellent. You make far more than it costs to get a customer — that's room to grow fast.";}
+
+    bn.style.color=col;
+    $("vEmoji").textContent=emoji;
+    $("vTitle").textContent=title;
+    $("vSub").textContent=sub;
+    $("vtop").style.background="color-mix(in srgb,"+col+" 9%,transparent)";
+
+    // meter pin
+    $("pin").style.left=pctFor(back)+"%";
+
+    // plain lines
+    $("worthOut").textContent=money(worth);
+    var recEl=$("recLine"), recIcon=$("recIcon");
+    if(profitPerSale<=0 || back<1){
+      // customer never buys enough to cover what it cost to get them
+      recIcon.textContent="🚫";
+      recEl.innerHTML='<span class="sub">Right now you <b>never earn back</b> what it costs to get a customer — over their whole time with you they bring in less than the '+money(cost)+' you spent to win them. Fix this first.</span>';
+    } else {
+      recIcon.textContent="⏱️";
+      var salesTxt=(recover===1?"1 sale":recover+" sales");
+      var timesTxt=Math.max(1,Math.round(times));
+      recEl.innerHTML='<span class="sub">You earn back the cost of getting a customer after about</span> <b>'+salesTxt+'</b><span class="sub">. Each one buys ~'+timesTxt+' time'+(timesTxt===1?"":"s")+', so everything after that is profit. Faster is better.</span>';
+    }
+  }
+
+  ["pay","times","cost","profit"].forEach(function(id){ $(id).addEventListener("input",compute); });
+  document.querySelectorAll(".chip").forEach(function(c){
+    c.addEventListener("click",function(){
+      var p=presets[c.getAttribute("data-p")]; if(!p)return;
+      $("pay").value=p.pay; $("times").value=p.times; $("cost").value=p.cost; $("profit").value=p.profit;
+      compute();
+    });
+  });
+
+  var ways=[
+    {em:"⬆️",t:"Charge more",d:"Raise your price a little. It's the fastest win — most of it is pure profit."},
+    {em:"✂️",t:"Spend less to deliver",d:"Cut waste in how you make or provide it. Wider margin, same sales."},
+    {em:"➕",t:"Sell them more",d:"Offer the next step to people who already love you. No new customers needed."},
+    {em:"🪜",t:"Offer a cheaper option",d:"Catch the folks who said 'too pricey' with a smaller starter version."},
+    {em:"🔁",t:"Sell a companion item",d:"Add something that pairs with it. More value, zero extra ad spend."},
+    {em:"💳",t:"Let them pay over time",d:"Payment plans mean way more people can say yes to the same price."}
+  ];
+  $("wayGrid").innerHTML=ways.map(function(w){
+    return '<div class="way"><div class="em">'+w.em+'</div><div><h3>'+w.t+'</h3><p>'+w.d+'</p></div></div>';
+  }).join("");
+
+  compute();
+})();
+</script>
